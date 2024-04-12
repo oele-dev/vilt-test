@@ -1,14 +1,39 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import SearchInput from '@/Components/SearchInput.vue';
 
-defineProps({
-    customers: Object,
+const props = defineProps({
+    customers: {
+        type: Object,
+        required: true
+    },
     status: {
         type: String,
     },
+    search : {
+        type:String,
+        required:false
+    }
 })
+
+const form = useForm({
+    search: props.search,
+});
+
+const searchCustomers = () => {
+    form.get(route('customers.index'), {
+        preserveScroll: true,
+        onSuccess: () => form.reset(),
+        onError: () => {
+            if (form.errors.password) {
+                form.reset('password', 'password_confirmation');
+                passwordInput.value.focus();
+            }
+        },
+    });
+};
 
 </script>
 
@@ -22,9 +47,33 @@ defineProps({
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div v-if="status" class="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
-                    {{ status }}
+               <div class="flex justify-between gap-2 mb-4">
+                <div>
+                    <SearchInput placeholder="Search..." type="search" v-model="form.search" @update:modelValue="searchCustomers"  />
                 </div>
+                <div class="flex gap-2">
+                    <div v-if="status" class="px-4 py-2 text-white bg-green-500 border rounded-md dark:text-gray-400 dark:hover:text-gray-100">
+                        {{ status }}
+                    </div>
+
+                    <a
+                            :href="route('customers.export', {'search' : form.search})"
+                            target="blank"
+                            download
+                            class="px-4 py-2 text-white bg-blue-500 border rounded-md dark:text-gray-400 hover:text-gray-200 dark:hover:text-gray-100"
+                        >
+                            Export
+                    </a>
+
+                    <Link
+                            :href="route('customers.create')"
+                            class="px-4 py-2 text-white bg-indigo-500 border rounded-md dark:text-gray-400 hover:text-gray-200 dark:hover:text-gray-100"
+                        >
+                            Create
+                    </Link>
+                </div>
+
+               </div>
 
                 <div class="overflow-hidden bg-white shadow-sm dark:bg-gray-800 sm:rounded-lg">
                     <table class="min-w-full">

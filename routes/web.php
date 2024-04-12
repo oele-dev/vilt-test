@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExportCustomerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -31,8 +32,14 @@ Route::middleware('auth')
     ->name('customers.')
     ->group(function () {
         Route::get('/', [CustomersController::class, 'index'])->name('index');
+        Route::post('/', [CustomersController::class, 'store'])->name('store');
+        Route::get('/create', [CustomersController::class, 'create'])->name('create');
+        // Export
+        Route::get('/export', ExportCustomerController::class)->name('export');
+
         Route::get('/edit/{customer}', [CustomersController::class, 'edit'])->name('edit');
-        Route::put('/update/{customer}', [CustomersController::class, 'update'])->name('update');
+        Route::patch('/{customer}', [CustomersController::class, 'update'])->name('update');
+        Route::delete('/{customer}', [CustomersController::class, 'destroy'])->name('destroy');
     });
 
 require __DIR__.'/auth.php';
