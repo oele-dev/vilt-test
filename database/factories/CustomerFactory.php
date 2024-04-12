@@ -24,7 +24,6 @@ class CustomerFactory extends Factory
                 fake()->numerify('######'),
                 fake()->numerify('##########')
             ),
-            'address' => fake()->address(),
         ];
     }
 }

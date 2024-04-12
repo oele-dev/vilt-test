@@ -16,7 +16,6 @@ return new class() extends Migration {
             $table->string('last_name', 50);
             $table->string('email')->unique();
             $table->unsignedInteger('phone');
-            $table->string('address', 50);
             $table->string('observation', 500)->nullable();
             $table->timestamps();
         });
