@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 
 class CustomersController extends Controller
@@ -13,6 +14,9 @@ class CustomersController extends Controller
      */
     public function index()
     {
+        $notice = session('notice');
+        session(['notice' => null]);
+
         return Inertia::render('Customers/Index', [
             'customers' => Customer::query()
                 ->paginate()
@@ -25,6 +29,7 @@ class CustomersController extends Controller
                     'email' => $customer->email,
                     'phone' => $customer->phone,
                 ]),
+            'status' => $notice,
         ]);
     }
 
@@ -33,19 +38,13 @@ class CustomersController extends Controller
      */
     public function create()
     {
+        // Inertia::render('Customers/Create.vue');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Customer $customer)
+    public function store()
     {
     }
 
@@ -54,13 +53,29 @@ class CustomersController extends Controller
      */
     public function edit(Customer $customer)
     {
+        return Inertia::render('Customers/Edit', [
+           'customer' => $customer,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Customer $customer)
+    public function update(Customer $customer)
     {
+        Request::validate([
+            'first_name' => ['required', 'max:50', 'min:2'],
+            'last_name' => ['required', 'max:50', 'min:2'],
+            'email' => ['required', 'max:50', 'min:2'],
+            'phone' => ['required', 'digits:10'],
+            'observation' => ['nullable', 'max:500'],
+        ]);
+
+        $customer->update(Request::all());
+
+        session(['notice' => 'Customer updated correctly']);
+
+        return Redirect::route('customers.index');
     }
 
     /**

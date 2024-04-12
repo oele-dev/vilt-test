@@ -31,6 +31,8 @@ Route::middleware('auth')
     ->name('customers.')
     ->group(function () {
         Route::get('/', [CustomersController::class, 'index'])->name('index');
+        Route::get('/edit/{customer}', [CustomersController::class, 'edit'])->name('edit');
+        Route::put('/update/{customer}', [CustomersController::class, 'update'])->name('update');
     });
 
 require __DIR__.'/auth.php';
