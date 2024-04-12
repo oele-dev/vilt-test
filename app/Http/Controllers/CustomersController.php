@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class CustomersController extends Controller
@@ -19,6 +20,7 @@ class CustomersController extends Controller
 
         return Inertia::render('Customers/Index', [
             'customers' => Customer::query()
+                ->filter(Request::get('search'))
                 ->paginate()
                 ->withQueryString()
                 ->through(fn ($customer, $k) => [
@@ -30,6 +32,7 @@ class CustomersController extends Controller
                     'phone' => $customer->phone,
                 ]),
             'status' => $notice,
+            'search' => Request::get('search'),
         ]);
     }
 
@@ -38,7 +41,7 @@ class CustomersController extends Controller
      */
     public function create()
     {
-        // Inertia::render('Customers/Create.vue');
+        return Inertia::render('Customers/Create');
     }
 
     /**
@@ -46,6 +49,19 @@ class CustomersController extends Controller
      */
     public function store()
     {
+        $validated = Request::validate([
+            'first_name' => ['required', 'max:50', 'min:2'],
+            'last_name' => ['required', 'max:50', 'min:2'],
+            'email' => ['required', Rule::unique('customers', 'email')],
+            'phone' => ['required', 'numeric', 'digits_between:5,10'],
+            'observation' => ['nullable', 'max:500'],
+         ]);
+
+        Customer::create($validated);
+
+        session(['notice' => 'Customer created correctly']);
+
+        return Redirect::route('customers.index');
     }
 
     /**
@@ -63,15 +79,15 @@ class CustomersController extends Controller
      */
     public function update(Customer $customer)
     {
-        Request::validate([
-            'first_name' => ['required', 'max:50', 'min:2'],
-            'last_name' => ['required', 'max:50', 'min:2'],
-            'email' => ['required', 'max:50', 'min:2'],
-            'phone' => ['required', 'digits:10'],
-            'observation' => ['nullable', 'max:500'],
-        ]);
+        $validated = Request::validate([
+             'first_name' => ['required', 'max:50', 'min:2'],
+             'last_name' => ['required', 'max:50', 'min:2'],
+             'email' => ['required', Rule::unique('customers', 'email')->ignore($customer->id)],
+             'phone' => ['required', 'numeric', 'digits_between:5,10'],
+             'observation' => ['nullable', 'max:500'],
+         ]);
 
-        $customer->update(Request::all());
+        $customer->update($validated);
 
         session(['notice' => 'Customer updated correctly']);
 
@@ -83,5 +99,10 @@ class CustomersController extends Controller
      */
     public function destroy(Customer $customer)
     {
+        $customer->delete();
+
+        session(['notice' => 'Customer deleted correctly']);
+
+        return Redirect::route('customers.index');
     }
 }

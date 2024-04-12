@@ -6,6 +6,8 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import TextareaInput from '@/Components/TextareaInput.vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import DeleteUserForm from './Partials/DeleteUserForm.vue';
+
 
 const props = defineProps({
     customer: {
@@ -33,7 +35,7 @@ const form = useForm({
         <div class="py-12">
             <div class="mx-auto space-y-6 max-w-7xl sm:px-6 lg:px-8">
                 <div class="p-4 bg-white shadow sm:p-8 dark:bg-gray-800 sm:rounded-lg">
-                    <form @submit.prevent="form.put(route('customers.update', customer.id))" class="mt-6 space-y-6">
+                    <form @submit.prevent="form.patch(route('customers.update', customer.id))" class="mt-6 space-y-6">
                         <div>
                             <InputLabel for="first_name" value="First Name" />
                             <TextInput
@@ -118,7 +120,7 @@ const form = useForm({
                 </div>
 
                 <div class="p-4 bg-white shadow sm:p-8 dark:bg-gray-800 sm:rounded-lg">
-                    Delete form
+                    <DeleteUserForm :customer="customer"/>
                 </div>
             </div>
         </div>
